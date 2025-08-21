@@ -1,0 +1,81 @@
+name: SENKRON CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+    - name: Checkout kod
+      uses: actions/checkout@v4
+
+    - name: Python ${{ matrix.python-version }} kurulumu
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip bağımlılıkları
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Bağımlılıkları yükle
+      run: make install
+
+    - name: Lint kontrolü (ruff)
+      run: make lint
+
+    - name: Kod formatı kontrolü (ruff)
+      run: |
+        ruff format --check .
+
+    - name: Testleri çalıştır
+      run: make test
+
+    - name: Coverage raporu
+      run: make coverage
+
+    - name: Coverage badge için sonuçları yükle
+      if: matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: false
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout kod
+      uses: actions/checkout@v4
+
+    - name: Docker image oluştur
+      run: make docker-build
+
+    - name: Docker container test
+      run: |
+        # Container'ı arka planda başlat
+        docker run -d --name senkron-test -p 8000:8000 senkronx_plus:dev
+        
+        # Servisin başlamasını bekle
+        sleep 10
+        
+        # Health check
+        curl -f http://localhost:8000/version || exit 1
+        curl -f http://localhost:8000/healthz/details || exit 1
+        
+        # Container'ı durdur
+        docker stop senkron-test
+        docker rm senkron-test

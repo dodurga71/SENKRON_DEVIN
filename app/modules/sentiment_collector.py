@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Sentiment Collector (Twitter/Reddit/Telegram)
 
 Açıklama:
@@ -10,16 +9,14 @@ Gereksinimler:
 - Hata yönetimi (try/except) ve logging standartları eklenecek.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict
+
 
 def ready() -> bool:
     """Modülün hazır olup olmadığını döndürür (iskelet)."""
     return False
 
+
 def describe() -> Dict[str, Any]:
     """Kısa modül özeti (Devin tarafından güncellenecek)."""
-    return {
-        "name": "sentiment_collector",
-        "ready": ready(),
-        "notes": "İskelet sürüm."
-    }
+    return {"name": "sentiment_collector", "ready": ready(), "notes": "İskelet sürüm."}
