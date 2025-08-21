@@ -1,0 +1,11 @@
+id,date,label,category,description,astro_signature
+1,2024-01-15,Teknoloji Atılımı,tech,"Yeni AI modeli duyuruldu","sun:295.5,moon:120.3,mercury:280.1,venus:315.2"
+2,2024-02-20,Ekonomik Değişim,economy,"Merkez bankası faiz artırdı","sun:331.2,moon:45.8,mercury:340.5,venus:25.1"
+3,2024-03-10,Sosyal Hareket,social,"Büyük protesto eylemi","sun:349.8,moon:180.2,mercury:15.3,venus:60.4"
+4,2024-04-05,Teknoloji Atılımı,tech,"Blockchain protokolü lansmanı","sun:15.2,moon:220.7,mercury:35.8,venus:95.3"
+5,2024-05-12,Doğal Olay,natural,"Büyük deprem","sun:51.8,moon:300.1,mercury:70.2,venus:130.6"
+6,2024-06-18,Ekonomik Değişim,economy,"Kripto para düzenlemesi","sun:87.3,moon:15.5,mercury:105.7,venus:165.9"
+7,2024-07-22,Sosyal Hareket,social,"Toplumsal reform hareketi","sun:119.6,moon:95.8,mercury:140.2,venus:200.1"
+8,2024-08-14,Teknoloji Atılımı,tech,"Kuantum bilgisayar gelişimi","sun:141.9,moon:175.3,mercury:160.5,venus:220.8"
+9,2024-09-25,Doğal Olay,natural,"İklim değişikliği etkisi","sun:182.4,moon:255.7,mercury:200.1,venus:260.3"
+10,2024-10-30,Ekonomik Değişim,economy,"Global piyasa dalgalanması","sun:217.8,moon:335.2,mercury:235.6,venus:295.7"
