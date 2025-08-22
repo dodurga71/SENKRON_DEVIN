@@ -1,8 +1,12 @@
+import os
+import platform
+import time
+from datetime import datetime, timezone
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from . import __version__, __build_time__
-import os, platform, time
-from datetime import datetime, timezone
+
+from . import __version__
 
 app = FastAPI(title="SENKRONX_PLUS API", version=__version__)
 
