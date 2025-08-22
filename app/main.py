@@ -1,10 +1,15 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from . import __version__, __build_time__
-import os, platform, time
+import os
+import platform
+import time
 from datetime import datetime, timezone
 
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+
+from . import __version__
+
 app = FastAPI(title="SENKRONX_PLUS API", version=__version__)
+
 
 @app.get("/version")
 def version():
@@ -20,6 +25,7 @@ def version():
         "python": platform.python_version(),
     }
 
+
 @app.get("/healthz/details")
 def healthz_details():
     return JSONResponse(
@@ -28,7 +34,7 @@ def healthz_details():
             "services": {
                 "api": True,
                 "ml_core": False,  # Devin tamamlayacak
-                "db": False,       # opsiyonel
+                "db": False,  # opsiyonel
             },
             "notes": "SENKRON bootstrap sağlıklı. Çekirdek modüller iskelet halinde.",
         }
