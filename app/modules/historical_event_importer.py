@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Historical Event Importer
 
 Açıklama:
@@ -10,7 +9,8 @@ Gereksinimler:
 - Hata yönetimi (try/except) ve logging standartları eklenecek.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict
+
 
 def ready() -> bool:
     """Modülün hazır olup olmadığını döndürür (iskelet)."""

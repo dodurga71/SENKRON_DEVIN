@@ -73,11 +73,76 @@ docker run --rm -p 8000:8000 senkronx_plus:dev
 └── README.md
 ```
 
+## ⭐ SBZET v2025.9 Entegrasyonu
+
+SENKRON artık **SBZET (Sevt×Sbzet) v2025.9** çerçevesi ile quantum temporal mechanics ve astrolojik analizi birleştiren unified prediction sistemi sunuyor.
+
+### 🔮 Unified Predictor API
+
+```bash
+# POST /predict - Unified prediction skoru
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "start_date": "2024-01-01",
+    "end_date": "2024-01-31", 
+    "E": 5.0,
+    "delta_g": 0.1,
+    "D": 2.0,
+    "weights": [0.7, 0.3]
+  }'
+
+# GET /patterns - Timeline pattern discovery
+curl "http://localhost:8000/patterns?start=2024-01-01&end=2024-02-29"
+```
+
+### 🧮 SBZET Formülü
+
+```
+p = σ(k*(E-E0-α*D+β*Δg)) * exp(-γ*D)
+σ(x) = 1/(1+exp(-x))
+```
+
+**Parametreler:**
+- E: Enerji seviyesi
+- D: Mesafe/gecikme faktörü  
+- Δg: Gravitasyonel değişim
+- E0=3.0, k=1.25, α=0.9, β=8.0, γ=0.8
+
+### 🐍 Python Kullanımı
+
+```python
+from datetime import datetime, timezone, date
+from app.modules.unified_predictor import unified_score
+from app.modules.quantum_predictor import success_prob, QuantumParams
+from app.modules.timeline_engine import build_window, discover_triggers
+
+# Unified prediction
+result = unified_score(
+    start_date=date(2024, 1, 1),
+    end_date=date(2024, 1, 31),
+    E=5.0, delta_g=0.1, D=2.0,
+    weights=(0.7, 0.3)
+)
+print(f"Final Score: {result['final']:.3f}")
+print(f"Astro: {result['astro']:.3f}, Quantum: {result['quant']:.3f}")
+
+# SBZET quantum calculation
+prob = success_prob(E=5.0, delta_g=0.1, D=2.0)
+print(f"SBZET Probability: {prob:.3f}")
+
+# Timeline pattern discovery
+events_a = build_window(date(2024, 1, 1), date(2024, 1, 15))
+events_b = build_window(date(2024, 1, 16), date(2024, 1, 31))
+patterns = discover_triggers(events_a, events_b)
+print(f"Discovered {len(patterns)} patterns")
+```
+
 ## ⭐ Ephemeris Engine Örneği
 
 ```python
 from datetime import datetime, timezone
-from app.modules.ephemeris_engine import compute_positions, deg_to_sign
+from app.modules.ephemeris_engine import compute_positions, deg_to_sign, aspect_clusters
 
 # Gezegen pozisyonlarını hesapla
 dt = datetime(2024, 3, 21, 12, 0, 0, tzinfo=timezone.utc)  # İlkbahar ekinoksu
@@ -91,9 +156,9 @@ print(f"Güneş: {sun['longitude']:.1f}° - {sun['zodiac']['sign']}")
 sign_index, sign_name, deg_in_sign, dms = deg_to_sign(sun['longitude'])
 print(f"Güneş: {deg_in_sign:.1f}° {sign_name}")
 
-# İstanbul için konum bazlı hesaplama
-istanbul = {"lat": 41.0, "lon": 29.0, "elevation": 100}
-local_positions = compute_positions(dt, istanbul)
+# Aspect cluster analizi
+aspects = aspect_clusters(date(2024, 3, 1), date(2024, 3, 31))
+print(f"Aspect Density: {aspects['aspect_density']:.2f}")
 ```
 
 ## 📊 Modül Durumu

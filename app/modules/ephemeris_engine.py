@@ -11,7 +11,7 @@ Ephemeris verileri: DE440s (öncelik), DE421 (yedek)
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, Optional, Tuple
 
 from skyfield.api import Loader, utc
@@ -255,6 +255,87 @@ def ready() -> bool:
     except Exception:
         return False
 
+def aspect_clusters(start: date, end: date) -> Dict[str, Any]:
+    """Belirtilen tarih aralığındaki gezegen çiftleri için temel açı kümelerini hesaplar
+
+    Args:
+        start: Başlangıç tarihi
+        end: Bitiş tarihi
+
+    Returns:
+        Dict: Aspect kümeleri ve sayıları
+    """
+    try:
+        from datetime import timedelta
+
+        aspects = {
+            "conjunction": {"angle": 0, "orb": 10, "count": 0},
+            "sextile": {"angle": 60, "orb": 6, "count": 0},
+            "square": {"angle": 90, "orb": 8, "count": 0},
+            "trine": {"angle": 120, "orb": 8, "count": 0},
+            "opposition": {"angle": 180, "orb": 10, "count": 0}
+        }
+
+        current_date = start
+        total_days = 0
+
+        while current_date <= end and total_days < 100:  # Performans sınırı
+            try:
+                dt = datetime.combine(current_date, datetime.min.time()).replace(tzinfo=timezone.utc)
+                positions = compute_positions(dt)
+
+                if "positions" in positions:
+                    planets = list(positions["positions"].keys())
+
+                    for i, planet1 in enumerate(planets):
+                        for planet2 in planets[i+1:]:
+                            try:
+                                lon1 = positions["positions"][planet1]["longitude"]
+                                lon2 = positions["positions"][planet2]["longitude"]
+
+                                diff = abs(lon1 - lon2)
+                                if diff > 180:
+                                    diff = 360 - diff
+
+                                for aspect_name, aspect_info in aspects.items():
+                                    target_angle = aspect_info["angle"]
+                                    orb = aspect_info["orb"]
+
+                                    if abs(diff - target_angle) <= orb:
+                                        aspects[aspect_name]["count"] += 1
+                                        break
+
+                            except Exception as e:
+                                logger.warning(f"Aspect hesaplama hatası {planet1}-{planet2}: {e}")
+                                continue
+
+                current_date += timedelta(days=1)
+                total_days += 1
+
+            except Exception as e:
+                logger.warning(f"Günlük pozisyon hatası {current_date}: {e}")
+                current_date += timedelta(days=1)
+                total_days += 1
+                continue
+
+        total_aspects = sum(aspect["count"] for aspect in aspects.values())
+
+        return {
+            "period": {"start": start.isoformat(), "end": end.isoformat()},
+            "days_analyzed": total_days,
+            "aspects": aspects,
+            "total_aspects": total_aspects,
+            "aspect_density": total_aspects / max(1, total_days)
+        }
+
+    except Exception as e:
+        logger.error(f"Aspect clusters hesaplama hatası: {e}")
+        return {
+            "error": str(e),
+            "aspects": {},
+            "total_aspects": 0
+        }
+
 def describe() -> Dict[str, Any]:
     """Modül özeti"""
     return {
@@ -262,5 +343,6 @@ def describe() -> Dict[str, Any]:
         "ready": ready(),
         "notes": "Skyfield tabanlı ephemeris engine (DE440s/DE421)",
         "supported_bodies": list(CELESTIAL_BODIES.keys()),
-        "zodiac_signs": ZODIAC_SIGNS
+        "zodiac_signs": ZODIAC_SIGNS,
+        "functions": ["compute_positions", "deg_to_sign", "is_retrograde", "aspect_clusters"]
     }
