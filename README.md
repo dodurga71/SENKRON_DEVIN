@@ -37,6 +37,7 @@ docker run --rm -p 8000:8000 senkronx_plus:dev
 ## 🧪 Uç Noktalar
 - `GET /version` – sürüm ve çalışma zamanı
 - `GET /healthz/details` – temel sağlık kontrolü
+- `GET /patterns` – historical event pattern analizi (filtreleme ve tarih aralığı desteği)
 
 ## 📁 Klasör Yapısı
 ```
@@ -102,6 +103,7 @@ Tüm modüller şu anda "iskelet" durumundadır ve Devin AI tarafından genişle
 
 - ✅ **FastAPI Bootstrap**: Temel uygulama yapısı hazır
 - ✅ **ephemeris_engine**: Skyfield tabanlı gezegen hesaplamaları (tamamlandı)
+- ✅ **historical_event_importer**: Esnek CSV importer - UTF-8 BOM, opsiyonel sütunlar, filtreleme (tamamlandı)
 - 🔄 **unified_predictor**: Fusion Core (iskelet)
 - 🔄 **financial_predictor**: TA + Astro + Gann (iskelet)
 - 🔄 **quantum_predictor**: Retrocausality + 3B zaman (iskelet)
@@ -109,7 +111,71 @@ Tüm modüller şu anda "iskelet" durumundadır ve Devin AI tarafından genişle
 - 🔄 **prediction_backtester**: F1, MAPE, Sharpe (iskelet)
 - 🔄 **timeline_engine**: Retrokausal Zaman Tüneli (iskelet)
 - 🔄 **sentiment_collector**: Twitter/Reddit/Telegram (iskelet)
-- 🔄 **historical_event_importer**: Event data ingestion (iskelet)
+
+## 📊 CSV Format Specification
+
+### Historical Events CSV Format
+
+**Gerekli Sütunlar:**
+- `date`: Tarih (YYYY-MM-DD formatı, pandas to_datetime ile parse edilir)
+- `title`: Event başlığı (boş olamaz)
+
+**Opsiyonel Sütunlar:**
+- `id`: Benzersiz tanımlayıcı (yoksa otomatik üretilir: hash(title+date))
+- `category`: Event kategorisi (varsayılan: "macro")
+- `weight`: Event ağırlığı (varsayılan: 1.0, 0.0-5.0 arası clamp edilir)
+
+**Desteklenen Özellikler:**
+- UTF-8 BOM toleransı (`encoding="utf-8-sig"`)
+- Header normalizasyonu (strip, lowercase, BOM karakteri temizleme)
+- Geçersiz tarih satırları otomatik atlanır
+- Boş başlık satırları otomatik atlanır
+- Negatif weight değerleri 0.0'a, 5.0 üstü değerler 5.0'a clamp edilir
+
+**Örnek CSV:**
+```csv
+date,title,category,weight,id
+2024-01-15,Market Crash,financial,3.5,1
+2024-02-20,Election Results,political,2.0,2
+2024-03-10,Tech Innovation,technology,1.5,3
+```
+
+**Minimal CSV (sadece gerekli sütunlar):**
+```csv
+date,title
+2024-01-01,Important Event
+2024-02-01,Another Event
+```
+
+### /patterns Endpoint
+
+**Query Parameters:**
+- `min_weight`: Minimum ağırlık filtresi (varsayılan: 0.0)
+- `category`: Kategori filtresi (opsiyonel)
+- `start_date`: Başlangıç tarihi YYYY-MM-DD (opsiyonel)
+- `end_date`: Bitiş tarihi YYYY-MM-DD (opsiyonel)
+- `csv_path`: CSV dosya yolu (varsayılan: "data/historical_events.csv")
+
+**Response Format:**
+```json
+{
+  "total_events": 10,
+  "filters": {
+    "min_weight": 1.0,
+    "category": "financial",
+    "start_date": "2024-01-01",
+    "end_date": "2024-12-31"
+  },
+  "window_a": {
+    "events": [...],
+    "count": 5
+  },
+  "window_b": {
+    "events": [...],
+    "count": 5
+  }
+}
+```
 
 ## 🧩 Notlar
 - DİL KİLİDİ: Tüm açıklamalar **Türkçe** tutulmuştur.
